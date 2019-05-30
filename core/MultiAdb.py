@@ -8,11 +8,15 @@ from DreamMultiDevices.core import RunTestCase
 from DreamMultiDevices.tools import Config
 from airtest.core.api import *
 from poco.drivers.android.uiautomation import AndroidUiautomationPoco
+from airtest.core.android.adb import ADB
 
 _print = print
 def print(*args, **kwargs):
     _print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), *args, **kwargs)
 
+adb = ADB().adb_path
+print(f'OUTPUT: adb = {adb}')
+# 2019-05-30 20:14:45 OUTPUT: adb = F:\helloc\droneat\PIPENV_VENV_IN_PROJECT\droneat-y4vxBZBv\lib\site-packages\airtest\core\android\static\adb\windows\adb.exe
 
 class MultiAdb:
 
@@ -96,7 +100,7 @@ class MultiAdb:
     # 本方法用于读取实时的设备连接
     def getdevices(self):
         deviceslist=[]
-        for devices in os.popen("adb devices"):
+        for devices in os.popen(adb + " devices"):
             if "\t" in devices:
                 if devices.find("emulator")<0:
                     if devices.split("\t")[1] == "device\n":
@@ -160,11 +164,11 @@ class MultiAdb:
         print("设备{}开始进行自动安装".format(devices))
         try:
             if self.isinstalled(devices, package):
-                uninstallcommand = "adb -s " + str(devices) + " uninstall " + package
+                uninstallcommand = adb + " -s " + str(devices) + " uninstall " + package
                 print("正在{}上卸载{},卸载命令为：{}".format(devices, package, uninstallcommand))
                 #print("卸载结果：", os.system(uninstallcommand))
 
-            installcommand = "adb -s " + str(devices) + " install -r " + apkpath
+            installcommand = adb + " -s " + str(devices) + " install -r " + apkpath
             result=os.popen(installcommand)
             res = result.read()
             for line in res.splitlines():
@@ -214,7 +218,7 @@ class MultiAdb:
                 count += 1
 
     def isinstalled(self,devices, package):
-        command = "adb -s " + devices + " shell pm list packages"
+        command = adb + " -s " + devices + " shell pm list packages"
         commandresult = os.popen(command)
         print("设备{}进入isinstalled方法，package={}".format(devices,package))
         for pkg in commandresult:

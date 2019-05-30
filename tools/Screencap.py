@@ -5,11 +5,15 @@ import glob
 import os
 import time
 from PIL import Image,ImageGrab
-
+from airtest.core.android.adb import ADB
 
 _print = print
 def print(*args, **kwargs):
     _print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), *args, **kwargs)
+
+adb = ADB().adb_path
+print(f'OUTPUT: adb = {adb}')
+# 2019-05-30 20:14:45 OUTPUT: adb = F:\helloc\droneat\PIPENV_VENV_IN_PROJECT\droneat-y4vxBZBv\lib\site-packages\airtest\core\android\static\adb\windows\adb.exe
 
 def GetScreen(startTime,devices,action):
     reportpath = os.path.join(os.getcwd(), "Report")
@@ -17,10 +21,10 @@ def GetScreen(startTime,devices,action):
     print("screenpath=",screenpath)
     png = screenpath +"\\"+ time.strftime('%Y%m%d_%H%M%S', time.localtime(startTime)) + "_" +  "_" + action+ ".png"
     print("png=",png)
-    os.system("adb -s " + devices + " shell screencap -p /sdcard/screencap.png")
+    os.system(adb + " -s " + devices + " shell screencap -p /sdcard/screencap.png")
     fp = open(png, "a+", encoding="utf-8")
     fp.close()
-    os.system("adb -s " + devices + " pull /sdcard/screencap.png " + png)
+    os.system(adb + " -s " + devices + " pull /sdcard/screencap.png " + png)
     time.sleep(1)
     compressImage(png)
     print("<img src='" + png + "' width=600 />")
